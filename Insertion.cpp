@@ -49,11 +49,12 @@ int main()
     {
         case 1:
             cout << "Enter the Name: ";
-            cin >> c.name;
+            cin.ignore();
+            getline(cin, c.name);
             cout << "Enter the Phone Number: ";
-            cin >> c.phoneNumber;
+            getline(cin, c.phoneNumber);
             cout << "Enter the Email: ";
-            cin >> c.email;
+            cin>>c.email;
             insertContact(ht, c);
             break;
         default:
@@ -77,6 +78,3 @@ int main()
 // Collision Handling using Linear Probing - if the Index is Already Occupied
 // Re Hash the Hash Table - if More than 70% of the Hash Table is Filled
 // Should Not Allow Duplicate Entries
-
-/* Issues - Insertion */
-// The input name is taking the first word only
