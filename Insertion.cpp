@@ -20,6 +20,17 @@ void insertContact(HashTable *ht, Contact c) {
     ht->table[index].push_back(c);
 }
 
+// Check if a contact with a given phone number already exists
+bool contactExists(HashTable *ht,string phoneNumber) {
+    for (int i = 0; i < ht->size; ++i) {
+        for (auto contact : ht->table[i]) {
+            if (contact.phoneNumber == phoneNumber) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 int main()
 {
@@ -53,6 +64,17 @@ int main()
             getline(cin, c.name);
             cout << "Enter the Phone Number: ";
             getline(cin, c.phoneNumber);
+            // Check if the Phone Number is Valid
+            if(c.phoneNumber.length()!=10)
+            {
+                cout<<"Invalid Phone Number"<<endl;
+                break;
+            }
+            // Search if the Contact exist with same number
+            if (contactExists(ht, c.phoneNumber)) {
+                cout << "Contact already exists" << endl;
+                break;
+            }
             cout << "Enter the Email: ";
             cin>>c.email;
             insertContact(ht, c);
@@ -77,4 +99,3 @@ int main()
 /* To Do - Insertion */
 // Collision Handling using Linear Probing - if the Index is Already Occupied
 // Re Hash the Hash Table - if More than 70% of the Hash Table is Filled
-// Should Not Allow Duplicate Entries
