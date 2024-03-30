@@ -1,6 +1,6 @@
 #include<bits/stdc++.h>
 using namespace std;
-
+static int contactCount=0;
 // Define a Class for contact information
 class Contact {
     public:
@@ -13,11 +13,42 @@ class HashTable {
         int size;
         vector<Contact> *table;
 };
+void rehash(HashTable *ht) {
+    cout << "Rehashing" << endl;
+    int oldSize = ht->size;
+    ht->size = 2 * oldSize;
+    vector<Contact> *newTable = new vector<Contact>[ht->size]; // Allocate new table
+
+    // Copy existing contacts to the new table
+    for (int i = 0; i < oldSize; i++) {
+        for (int j = 0; j < ht->table[i].size(); j++) {
+            Contact c = ht->table[i][j];
+            int index = c.name.length() % ht->size;
+            while (newTable[index].size() != 0) {
+                index = (index + 1) % ht->size;
+            }
+            newTable[index].push_back(c);
+        }
+    }
+    // Delete old table and update ht->table
+    delete[] ht->table;
+    ht->table = newTable;
+}
 
 // Insert a contact into the hash table
 void insertContact(HashTable *ht, Contact c) {
     int index = c.name.length() % ht->size;
+    // Re Hash the Hash Table if more than 75% of the Hash Table is filled
+    float loadFactor = (float)contactCount / (float)ht->size;
+    if (loadFactor > 0.75) {
+        rehash(ht);
+    }
+    //Collision Handling using Linear Probing
+    while (ht->table[index].size() != 0) {
+        index = (index + 1) % ht->size;
+    }
     ht->table[index].push_back(c);
+    contactCount++;
 }
 
 // Check if a contact with a given phone number already exists
@@ -39,7 +70,6 @@ int main()
     Contact c;
     ht->size = 10;
     ht->table = new vector<Contact>[ht->size];
-
     // Insert the Contacts in a File into the Hash Table
     ifstream file("contacts.txt");
     string line;
@@ -50,52 +80,54 @@ int main()
         getline(ss, c.email, ',');
         insertContact(ht, c);
     }
-
-    // Choice for the User
-    int choice;
-    cout << "1. Add a Contact" << endl;
-    cout << "Enter your choice: ";
-    cin >> choice;
-    switch(choice)
-    {
-        case 1:
-            cout << "Enter the Name: ";
-            cin.ignore();
-            getline(cin, c.name);
-            cout << "Enter the Phone Number: ";
-            getline(cin, c.phoneNumber);
-            // Check if the Phone Number is Valid
-            if(c.phoneNumber.length()!=10)
-            {
-                cout<<"Invalid Phone Number"<<endl;
+    while(true){
+        // Choice for the User
+        int choice;
+        cout << "1. Add a Contact" << endl;
+        cout << "2. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        switch(choice)
+        {
+            case 1:
+                cout << "Enter the Name: ";
+                cin.ignore();
+                getline(cin, c.name);
+                cout << "Enter the Phone Number: ";
+                getline(cin, c.phoneNumber);
+                // Check if the Phone Number is Valid
+                if(c.phoneNumber.length()!=10)
+                {
+                    cout<<"Invalid Phone Number"<<endl;
+                    break;
+                }
+                // Search if the Contact exist with same number
+                if (contactExists(ht, c.phoneNumber)) {
+                    cout << "Contact already exists" << endl;
+                    break;
+                }
+                cout << "Enter the Email: ";
+                cin>>c.email;
+                insertContact(ht, c);
                 break;
-            }
-            // Search if the Contact exist with same number
-            if (contactExists(ht, c.phoneNumber)) {
-                cout << "Contact already exists" << endl;
+            case 2:
+                cout<<"Exiting"<<endl;
+                return 0;
+            default:
+            cout<<"Invalid choice"<<endl;
                 break;
-            }
-            cout << "Enter the Email: ";
-            cin>>c.email;
-            insertContact(ht, c);
-            break;
-        default:
-        cout<<"Invalid choice"<<endl;
-            break;
-    }
-
-    // Store the Contacts in the Hash Table into a File
-    ofstream outfile("contacts.txt");
-    for (int i = 0; i < ht->size; i++) 
-    {
-        for (int j = 0; j < ht->table[i].size(); j++) {
-            outfile << ht->table[i][j].name << "," << ht->table[i][j].phoneNumber << "," << ht->table[i][j].email << endl;
         }
-    }
 
-    file.close(); 
+        // Store the Contacts in the Hash Table into a File
+        ofstream outfile("contacts.txt");
+        for (int i = 0; i < ht->size; i++) 
+        {
+            for (int j = 0; j < ht->table[i].size(); j++) {
+                outfile << ht->table[i][j].name << "," << ht->table[i][j].phoneNumber << "," << ht->table[i][j].email << endl;
+            }
+        }
+
+    }
+    file.close();
 }
 
-/* To Do - Insertion */
-// Collision Handling using Linear Probing - if the Index is Already Occupied
-// Re Hash the Hash Table - if More than 70% of the Hash Table is Filled
