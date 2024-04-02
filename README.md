@@ -28,7 +28,7 @@ Develop a command-line application that allows users to manage and search throug
 **Additional Features (Optional)**:
 
 1. **Fuzzy Search**: Implement fuzzy search functionality to allow users to find contacts even with minor typos or variations in the search query.
-2. **Import/Export Contacts**: Allow users to import contacts from a file (e.g., CSV) or export contacts to a file for backup or sharing purposes.
+2. **Import/Export Contacts**: Allow users to import contacts from a file (e.g., VCF) or export contacts to a file for backup or sharing purposes.
 3. **Contact Groups**: Enable users to categorize contacts into different groups (e.g., friends, family, colleagues) and search within specific groups.
 
 **Technologies**:

@@ -122,7 +122,7 @@ Contact getContact(HashTable *ht,  string key,  string value) {
 void exportToVCF( Contact contact,  string filename) {
     ofstream outputFile(filename);
     if (!outputFile.is_open()) {
-        cerr << "Error opening file " << filename << endl;
+        cout << "Error opening file " << filename << endl;
         return;
     }
     // Write vCard format
@@ -178,7 +178,8 @@ int main()
         cout << "2. Delete a Contact" << endl;
         cout << "3. Export Contact to VCF" << endl;
         cout << "4. Display Contacts" << endl;
-        cout << "5. Exit" << endl;
+        cout << "5. Modify Contact" << endl;
+        cout << "6. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         string phoneNumberOrName;
@@ -230,6 +231,9 @@ int main()
                 display(ht);
                 break;
             case 5:
+                display(ht);
+                break;
+            case 6:
                 cout<<"Exiting"<<endl;
                 return 0;
             default:
