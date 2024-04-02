@@ -154,6 +154,49 @@ void display(HashTable *ht) {
     }
 }
 
+// Search for a Contact
+void Search(HashTable *ht,  string key) {
+    bool found = false;
+    for (int i = 0; i < ht->size; i++) {
+        for (int j = 0; j < ht->table[i].size(); j++) {
+            if (ht->table[i][j].name == key || ht->table[i][j].phoneNumber == key) {
+                cout << "Name: " << ht->table[i][j].name << ", Phone Number: " << ht->table[i][j].phoneNumber << ", Email: " << ht->table[i][j].email << endl;
+                found = true;
+            }
+        }
+    }
+    if (!found) {
+        cout << "Contact not found" << endl;
+    }
+}
+
+// Fuzzy Search for a Contact using a partial match
+void fuzzySearch(HashTable *ht, string key) {
+    cout << "Fuzzy Searching for: " << key << endl;
+    vector<Contact> foundContacts;
+    for (int i = 0; i < ht->size; i++) {
+        for (int j = 0; j < ht->table[i].size(); j++) {
+            string contactName = ht->table[i][j].name;
+            transform(contactName.begin(), contactName.end(), contactName.begin(), ::tolower); // Convert to lowercase
+            transform(key.begin(), key.end(), key.begin(), ::tolower); // Convert search key to lowercase
+            if (contactName.find(key) != string::npos) { // Check for partial match
+                foundContacts.push_back(ht->table[i][j]);
+            }
+        }
+    }
+    if (!foundContacts.empty()) {
+        cout << "Found contacts:" << endl;
+        for (auto &contact : foundContacts) {
+            cout << "Name: " << contact.name << ", Phone Number: " << contact.phoneNumber << ", Email: "
+                 << contact.email << endl;
+        }
+    } else {
+        cout << "No matching contacts found." << endl;
+    }
+}
+
+
+
 int main()
 {
     // Create a Hash Table
@@ -178,8 +221,10 @@ int main()
         cout << "2. Delete a Contact" << endl;
         cout << "3. Export Contact to VCF" << endl;
         cout << "4. Display Contacts" << endl;
-        cout << "5. Modify Contact" << endl;
-        cout << "6. Exit" << endl;
+        cout << "5. Search Contact" << endl;
+        cout << "6. Fuzzy Search Contact" << endl;
+        cout << "7. Modify Contact" << endl;
+        cout << "8. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         string phoneNumberOrName;
@@ -231,9 +276,18 @@ int main()
                 display(ht);
                 break;
             case 5:
-                display(ht);
+                cout<< "Enter the Phone Number or Name of the contact to search: ";
+                cin.ignore();
+                getline(cin, phoneNumberOrName);
+                Search(ht, phoneNumberOrName);
                 break;
             case 6:
+                cout<< "Enter the Phone Number or Name of the contact to search: ";
+                cin.ignore();
+                getline(cin, phoneNumberOrName);
+                fuzzySearch(ht, phoneNumberOrName);
+                break;
+            case 8:
                 cout<<"Exiting"<<endl;
                 return 0;
             default:
