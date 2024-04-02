@@ -116,7 +116,7 @@ void deleteContact(HashTable *ht, string phoneNumber) {
     cout << "Contact not found" << endl;
 }
 
-void exportToCSV(const Contact& contact, const string& filename) {
+void exportToVCF(const Contact& contact, const string& filename) {
     ofstream outputFile(filename);
 
     if (!outputFile.is_open()) {
@@ -124,11 +124,13 @@ void exportToCSV(const Contact& contact, const string& filename) {
         return;
     }
 
-    // Write header row
-    outputFile << "Name,Phone Number,Email" << endl;
-
-    // Write the contact to the file
-    outputFile << contact.name << "," << contact.phoneNumber << "," << contact.email << endl;
+    // Write vCard format
+    outputFile << "BEGIN:VCARD" << endl;
+    outputFile << "VERSION:3.0" << endl;
+    outputFile << "FN:" << contact.name << endl;
+    outputFile << "TEL;TYPE=CELL:" << contact.phoneNumber << endl;
+    outputFile << "EMAIL;TYPE=INTERNET:" << contact.email << endl;
+    outputFile << "END:VCARD" << endl;
 
     outputFile.close();
 }
@@ -153,7 +155,7 @@ int main() {
         int choice;
         cout << "1. Add a Contact" << endl;
         cout << "2. Delete a Contact" << endl;
-        cout << "3. Export Contact to CSV" << endl;
+        cout << "3. Export Contact to VCF" << endl;
         cout << "4. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -195,8 +197,8 @@ int main() {
                     if (contactToExport.name.empty()) {
                         contactToExport = getContact(ht, "name", phoneNumberOrName);
                     }
-                    exportToCSV(contactToExport, "contact.csv");
-                    cout << "Contact exported to contact.csv successfully." << endl;
+                    exportToVCF(contactToExport, "contact.vcf");
+                    cout << "Contact exported to contact.vcf successfully." << endl;
                 } else {
                     cout << "Contact not found" << endl;
                 }
