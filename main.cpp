@@ -195,7 +195,27 @@ void fuzzySearch(HashTable *ht, string key) {
     }
 }
 
-
+// Modify a Contact
+void modify(HashTable *ht, string key) {
+    bool found = false;
+    for (int i = 0; i < ht->size; i++) {
+        for (int j = 0; j < ht->table[i].size(); j++) {
+            if (ht->table[i][j].name == key || ht->table[i][j].phoneNumber == key) {
+                cout << "Enter the new Name: ";
+                getline(cin, ht->table[i][j].name);
+                cout << "Enter the new Phone Number: ";
+                getline(cin, ht->table[i][j].phoneNumber);
+                cout << "Enter the new Email: ";
+                cin>>ht->table[i][j].email;
+                cout << "Contact modified successfully" << endl;
+                found = true;
+            }
+        }
+    }
+    if (!found) {
+        cout << "Contact not found" << endl;
+    }
+}
 
 int main()
 {
@@ -282,10 +302,16 @@ int main()
                 Search(ht, phoneNumberOrName);
                 break;
             case 6:
-                cout<< "Enter the Phone Number or Name of the contact to search: ";
+                cout<< "Enter Name of the contact to Fuzzy search: ";
                 cin.ignore();
                 getline(cin, phoneNumberOrName);
                 fuzzySearch(ht, phoneNumberOrName);
+                break;
+            case 7:
+                cout<< "Enter the Phone Number or Name of the contact to Modify: ";
+                cin.ignore();
+                getline(cin, phoneNumberOrName);
+                modify(ht, phoneNumberOrName);
                 break;
             case 8:
                 cout<<"Exiting"<<endl;
