@@ -136,6 +136,24 @@ void exportToVCF( Contact contact,  string filename) {
     outputFile.close();
 }
 
+// Display all the contacts in the Sorted Order according to the name
+bool compareContactsByName(Contact a, Contact b) {
+    return a.name < b.name;
+}
+
+void display(HashTable *ht) {
+    vector<Contact> contacts;
+    for (int i = 0; i < ht->size; i++) {
+        for (int j = 0; j < ht->table[i].size(); j++) {
+            contacts.push_back(ht->table[i][j]);
+        }
+    }
+    sort(contacts.begin(), contacts.end(), compareContactsByName);
+    for (auto contact : contacts) {
+        cout << "Name: " << contact.name << ", Phone Number: " << contact.phoneNumber << ", Email: " << contact.email << endl;
+    }
+}
+
 int main()
 {
     // Create a Hash Table
@@ -159,7 +177,8 @@ int main()
         cout << "1. Add a Contact" << endl;
         cout << "2. Delete a Contact" << endl;
         cout << "3. Export Contact to VCF" << endl;
-        cout << "4. Exit" << endl;
+        cout << "4. Display Contacts" << endl;
+        cout << "5. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
         string phoneNumberOrName;
@@ -208,6 +227,9 @@ int main()
                 }
                 break;
             case 4:
+                display(ht);
+                break;
+            case 5:
                 cout<<"Exiting"<<endl;
                 return 0;
             default:
