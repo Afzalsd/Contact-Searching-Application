@@ -55,15 +55,51 @@ void insertContact(HashTable *ht, Contact c) {
     contactCount++;
 }
 
-bool contactExists(HashTable *ht, string phoneNumber) {
-    for (int i = 0; i < ht->size; ++i) {
-        for (auto contact : ht->table[i]) {
-            if (contact.phoneNumber == phoneNumber) {
-                return true;
+bool contactExists(HashTable *ht, const string& key, const string& value) {
+    if (key == "phoneNumber") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.phoneNumber == value) {
+                    return true;
+                }
+            }
+        }
+    } else if (key == "name") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.name == value) {
+                    return true;
+                }
             }
         }
     }
     return false;
+}
+
+Contact getContact(HashTable *ht, const string& key, const string& value) {
+    Contact emptyContact;
+    emptyContact.name = "";
+    emptyContact.phoneNumber = "";
+    emptyContact.email = "";
+
+    if (key == "phoneNumber") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.phoneNumber == value) {
+                    return contact;
+                }
+            }
+        }
+    } else if (key == "name") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.name == value) {
+                    return contact;
+                }
+            }
+        }
+    }
+    return emptyContact;
 }
 
 void deleteContact(HashTable *ht, string phoneNumber) {
@@ -80,7 +116,7 @@ void deleteContact(HashTable *ht, string phoneNumber) {
     cout << "Contact not found" << endl;
 }
 
-void exportToCSV(const vector<Contact>& contacts, const string& filename) {
+void exportToCSV(const Contact& contact, const string& filename) {
     ofstream outputFile(filename);
 
     if (!outputFile.is_open()) {
@@ -91,10 +127,8 @@ void exportToCSV(const vector<Contact>& contacts, const string& filename) {
     // Write header row
     outputFile << "Name,Phone Number,Email" << endl;
 
-    // Write each contact to the file
-    for (const auto& contact : contacts) {
-        outputFile << contact.name << "," << contact.phoneNumber << "," << contact.email << endl;
-    }
+    // Write the contact to the file
+    outputFile << contact.name << "," << contact.phoneNumber << "," << contact.email << endl;
 
     outputFile.close();
 }
@@ -119,11 +153,11 @@ int main() {
         int choice;
         cout << "1. Add a Contact" << endl;
         cout << "2. Delete a Contact" << endl;
-        cout << "3. Export Contacts to CSV" << endl;
+        cout << "3. Export Contact to CSV" << endl;
         cout << "4. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
-        string phoneNumber;
+        string phoneNumberOrName;
 
         switch(choice) {
             case 1:
@@ -138,7 +172,7 @@ int main() {
                     break;
                 }
                 // Search if the Contact exists with the same number
-                if (contactExists(ht, c.phoneNumber)) {
+                if (contactExists(ht, "phoneNumber", c.phoneNumber)) {
                     cout << "Contact already exists" << endl;
                     break;
                 }
@@ -149,12 +183,23 @@ int main() {
             case 2:
                 cout << "Enter the Phone Number to delete: ";
                 cin.ignore(); // Clear the input buffer
-                getline(cin, phoneNumber);
-                deleteContact(ht, phoneNumber);
+                getline(cin, phoneNumberOrName);
+                deleteContact(ht, phoneNumberOrName);
                 break;
             case 3:
-                exportToCSV(*ht->table, "contacts.csv");
-                cout << "Contacts exported to contacts.csv successfully." << endl;
+                cout << "Enter the Phone Number or Name of the contact to export: ";
+                cin.ignore();
+                getline(cin, phoneNumberOrName);
+                if (contactExists(ht, "phoneNumber", phoneNumberOrName) || contactExists(ht, "name", phoneNumberOrName)) {
+                    Contact contactToExport = getContact(ht, "phoneNumber", phoneNumberOrName);
+                    if (contactToExport.name.empty()) {
+                        contactToExport = getContact(ht, "name", phoneNumberOrName);
+                    }
+                    exportToCSV(contactToExport, "contact.csv");
+                    cout << "Contact exported to contact.csv successfully." << endl;
+                } else {
+                    cout << "Contact not found" << endl;
+                }
                 break;
             case 4:
                 cout << "Exiting" << endl;
