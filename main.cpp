@@ -13,6 +13,8 @@ class HashTable {
         int size;
         vector<Contact> *table;
 };
+
+// Rehash the Hash Table
 void rehash(HashTable *ht) {
     cout << "Rehashing" << endl;
     int oldSize = ht->size;
@@ -52,11 +54,21 @@ void insertContact(HashTable *ht, Contact c) {
 }
 
 // Check if a contact with a given phone number already exists
-bool contactExists(HashTable *ht,string phoneNumber) {
-    for (int i = 0; i < ht->size; ++i) {
-        for (auto contact : ht->table[i]) {
-            if (contact.phoneNumber == phoneNumber) {
-                return true;
+bool contactExists(HashTable *ht,  string key,  string value) {
+    if (key == "phoneNumber") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.phoneNumber == value) {
+                    return true;
+                }
+            }
+        }
+    } else if (key == "name") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.name == value) {
+                    return true;
+                }
             }
         }
     }
@@ -76,6 +88,52 @@ void deleteContact(HashTable *ht, string phoneNumber) {
         }
     }
     cout << "Contact not found" << endl;
+}
+
+
+// Get a contact for a given phone number or name
+Contact getContact(HashTable *ht,  string key,  string value) {
+    Contact emptyContact;
+    emptyContact.name = "";
+    emptyContact.phoneNumber = "";
+    emptyContact.email = "";
+
+    if (key == "phoneNumber") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.phoneNumber == value) {
+                    return contact;
+                }
+            }
+        }
+    } else if (key == "name") {
+        for (int i = 0; i < ht->size; ++i) {
+            for (auto contact : ht->table[i]) {
+                if (contact.name == value) {
+                    return contact;
+                }
+            }
+        }
+    }
+    return emptyContact;
+}
+
+// Eport the Contact to a VCF file
+void exportToVCF( Contact contact,  string filename) {
+    ofstream outputFile(filename);
+    if (!outputFile.is_open()) {
+        cerr << "Error opening file " << filename << endl;
+        return;
+    }
+    // Write vCard format
+    outputFile << "BEGIN:VCARD" << endl;
+    outputFile << "VERSION:3.0" << endl;
+    outputFile << "FN:" << contact.name << endl;
+    outputFile << "TEL;TYPE=CELL:" << contact.phoneNumber << endl;
+    outputFile << "EMAIL;TYPE=INTERNET:" << contact.email << endl;
+    outputFile << "END:VCARD" << endl;
+
+    outputFile.close();
 }
 
 int main()
@@ -98,12 +156,13 @@ int main()
     while(true){
         // Choice for the User
         int choice;
-        string phoneNumber;
         cout << "1. Add a Contact" << endl;
         cout << "2. Delete a Contact" << endl;
-        cout << "3. Exit" << endl;
+        cout << "3. Export Contact to VCF" << endl;
+        cout << "4. Exit" << endl;
         cout << "Enter your choice: ";
         cin >> choice;
+        string phoneNumberOrName;
         switch(choice)
         {
             case 1:
@@ -119,7 +178,7 @@ int main()
                     break;
                 }
                 // Search if the Contact exist with same number
-                if (contactExists(ht, c.phoneNumber)) {
+                if (contactExists(ht, "phoneNumber", c.phoneNumber)) {
                     cout << "Contact already exists" << endl;
                     break;
                 }
@@ -130,10 +189,25 @@ int main()
             case 2:
                 cout << "Enter the Phone Number to delete: ";
                 cin.ignore(); 
-                getline(cin, phoneNumber);
-                deleteContact(ht, phoneNumber);
+                getline(cin, phoneNumberOrName);
+                deleteContact(ht, phoneNumberOrName);
                 break;
             case 3:
+                cout << "Enter the Phone Number or Name of the contact to export: ";
+                cin.ignore();
+                getline(cin, phoneNumberOrName);
+                if (contactExists(ht, "phoneNumber", phoneNumberOrName) || contactExists(ht, "name", phoneNumberOrName)) {
+                    Contact contactToExport = getContact(ht, "phoneNumber", phoneNumberOrName);
+                    if (contactToExport.name.empty()) {
+                        contactToExport = getContact(ht, "name", phoneNumberOrName);
+                    }
+                    exportToVCF(contactToExport, contactToExport.name + ".vcf");
+                    cout << "Contact exported as "<<contactToExport.name + ".vcf"<< " successfully." << endl;
+                } else {
+                    cout << "Contact not found" << endl;
+                }
+                break;
+            case 4:
                 cout<<"Exiting"<<endl;
                 return 0;
             default:
