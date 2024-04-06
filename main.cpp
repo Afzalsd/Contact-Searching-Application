@@ -332,5 +332,7 @@ int main()
 
     }
     file.close();
+    delete ht;
+    return 0;
 }
 
